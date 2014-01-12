@@ -1,0 +1,12 @@
+SECTIONS
+{
+  .text _text_link_address_ : 
+   AT ( _text_section_address_ )
+    { _startcode = . ; *(.text) ; _endcode = . ; }
+  .data _data_link_address_ : 
+   AT ( _data_section_address_ )
+    { _startdata = . ; *(.data) ; _enddata = . ; }
+  boot_section _boot_section_address_ :
+   AT ( ADDR (boot_section) )
+    { _startboot = . ; *(boot_section) ; _endboot = . ;  }
+}

@@ -1,0 +1,47 @@
+-----------------------------------------------------------------
+
+Armpit Scheme Version 060
+
+(c) 2006-2013, Hubert Montas
+
+Please read license (MIT) in source code file: armpit_060.s
+
+-----------------------------------------------------------------
+
+This release of Armpit Scheme is designed to be assembled using
+GNU binutils version 2.22.
+
+The source code distribution has a new directory structure.
+The file armpit_060.s at the top of the structure
+(where this README is) imports the needed files for assembly.
+Machine-independent source code, assembler macros and constants
+are in the "common" sub-directory. Machine-specific header files
+and source code are in the "mcu_dependent" sub-directory with
+deeper sub-directories separated by MCU family (eg. LPC_2000).
+Within those sub-directories, sub-sub-directories (eg. LPC_H2148)
+are used to store board-specific files (board.h).
+
+Pre-built .bin files are included in the bin directory.
+Corresponding .map files indicate addresses of some symbols.
+
+To re-build (if desired), one would typically modify options in
+a board-specific board.h file and then apply the appropriate
+single-line example from the buildarmpit script file. For example:
+
+   ./buildarmpit 060 LPC_2000   LPC_H2148
+
+The buildarmpit script and the bld_link_addresses file that it
+relies on are in the top directory. The script reads the source
+in the top and sub- directories and writes binary and map
+files to the bin directory. The generation of an Intel hex (.hex)
+file is commented out (uncomment if desired before running the
+script). Depending on the target MCU and upload method, it may
+be necessary to post-process the binary into a .dfu, .ift or .ebn
+file using appropriate software. The How To web page on Armpit
+Scheme installation provides some related information and/or code.
+
+-----------------------------------------------------------------
+
+Visit armpit.sourceforge.net for more information.
+
+-----------------------------------------------------------------

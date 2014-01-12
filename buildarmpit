@@ -1,0 +1,66 @@
+#!/bin/sh
+#
+# Armpit Scheme 060 build script
+# (Fedora Linux 3.4.4-4.fc16.x86_64, GNU assembler/binutils version 2.22)
+#
+# Note: Edit Armpit Scheme source file with proper options before
+#       running this script.
+#
+# EXAMPLES:
+# ------------------------------------------------------
+# ARM7TDMI ----------------------------------------
+# 	./buildarmpit 060 AT91_SAM7  SAM7_H256		 // Olimex       SAM7-H256
+# 	./buildarmpit 060 AT91_SAM7  SAM7_P256		 // Olimex       SAM7-P256
+# 	./buildarmpit 060 AT91_SAM7  SAM7_1184		 // Microbus     1184-04
+# 	./buildarmpit 060 LPC_2000   LCDDemo_2158	 // FutureDesign LCDDemo-2158
+# 	./buildarmpit 060 LPC_2000   LPC2478_STK	 // Olimex       LPC2478-STK
+# 	./buildarmpit 060 LPC_2000   LPC_H2103		 // Olimex       LPC-H2103
+# 	./buildarmpit 060 LPC_2000   LPC_H2148		 // Olimex       LPC-H2148
+# 	./buildarmpit 060 LPC_2000   LPC_H2214		 // Olimex       LPC-H2214
+# 	./buildarmpit 060 LPC_2000   LPC_H2294		 // Olimex       LPC-H2294
+# 	./buildarmpit 060 LPC_2000   SFE_Logomatic1	 // SparkFun     Logomatic V1
+# 	./buildarmpit 060 LPC_2000   SFE_Logomatic2	 // SparkFun     Logomatic V2
+# 	./buildarmpit 060 LPC_2000   TINY_2106		 // NewMicros	 Tiny-2106
+# 	./buildarmpit 060 LPC_2000   TINY_2131		 // NewMicros	 Tiny-2131
+# 	./buildarmpit 060 LPC_2000   TINY_2138		 // NewMicros	 Tiny-2138
+# 	./buildarmpit 060 LPC_2800   LPC_H2888		 // Olimex       LPC-H2888
+# 	./buildarmpit 060 STR_7xx    STR_H711		 // Olimex       STR-H711
+# ARM9TDMI ----------------------------------------
+# 	./buildarmpit 060 AT91_SAM9  SAM9_L9261		 // Olimex       SAM9-L9261
+# 	./buildarmpit 060 S3C24xx    TCT_Hammer		 // TinCanTools  Hammer
+# 	./buildarmpit 060 EP_93xx    CS_E9302		 // Olimex       CS-EP9302
+# 	./buildarmpit 060 STR_9xx    STR91X_M		 // InSem        STR91X-M
+# Cortex-M3 ---------------------------------------
+# 	./buildarmpit 060 AT91_SAM3S SAM3_H256		 // Olimex       SAM3-H256
+# 	./buildarmpit 060 AT91_SAM3U SAM3U_SAM4SXPLD	 // Atmel/Embest SAM4S-Xplained
+# 	./buildarmpit 060 LM_3Sxxxx  EVB_LM3S1968	 // TI           LM3S1968-EVB
+# 	./buildarmpit 060 LM_3Sxxxx  EVB_LM3S6965	 // TI           LM3S6965-EVB
+# 	./buildarmpit 060 LM_3Sxxxx  IDM_LM3S1958	 // TI           IDM-L35
+# 	./buildarmpit 060 LM_3Sxxxx  TI_EvalBot		 // TI           Evalbot LM3S9B92
+# 	./buildarmpit 060 LPC_1300   LPC_P1343		 // Olimex       LPC-P1343
+# 	./buildarmpit 060 LPC_1700   Blueboard_1768	 // NGX          Blueboard LPC1768-H
+# 	./buildarmpit 060 STM32F1    STM32_DT_Board	 // InSem/Lodin  STM32-DOT-BOARD
+# 	./buildarmpit 060 STM32F1    STM32_Fractal	 // Fractal MCU32-1.12 Board
+# 	./buildarmpit 060 STM32F1    STM32_H103		 // Olimex       STM32-H103
+# 	./buildarmpit 060 STM32F1    STM32_H107		 // Olimex       STM32-H107
+# 	./buildarmpit 060 STM32F1    STM32_LCD		 // Olimex       STM32-LCD
+# Cortex-M4 ---------------------------------------
+# 	./buildarmpit 060 AT91_SAM4S SAM4S_XPLD		 // Atmel/Embest SAM4S-Xplained
+# 	./buildarmpit 060 LM_4Fxxx   EK_LM4F120		 // TI           EK-LM4F120 Launchpad
+# 	./buildarmpit 060 LM_4Fxxx   EK_LM4F232		 // TI           EK-LM4F232
+# 	./buildarmpit 060 LPC_4300   LPC4330_Xplorer	 // NGX          LPC4330-Xplorer
+# 	./buildarmpit 060 STM32F4    STM32F4_Discov	 // STM          STM32F4-Discovery
+# Cortex-A8 ---------------------------------------
+# 	./buildarmpit 060 OMAP_35xx  GMX_Overo_Tide	 // Gumstix      Overo Tide
+# 	./buildarmpit 060 OMAP_35xx  TI_Beagle		 // TI           Beagle rev B7
+# 	./buildarmpit 060 OMAP_35xx  TI_Beagle_XM	 // TI           Beagle XM rev C
+# ------------------------------------------------------
+
+arm-none-eabi-as -Icommon -Imcu_specific/$2 -Imcu_specific/$2/$3 -o a.o armpit_$1.s
+arm-none-eabi-ld -Map bin/armpit_$1_$3.map --script bld_link_addresses -o a.elf a.o
+# *** uncomment the line below to generate an intel hex file ***
+# arm-none-eabi-objcopy -O ihex   a.elf  bin/armpit_$1_$3.hex
+arm-none-eabi-objcopy -O binary a.elf  bin/armpit_$1_$3.bin
+rm a.o
+rm a.elf
+

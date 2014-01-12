@@ -1,0 +1,81 @@
+/*------------------------------------------------------------------------------
+@
+@  ARMPIT SCHEME Version 060
+@
+@  ARMPIT SCHEME is distributed under The MIT License.
+
+@  Copyright (c) 2011-2013 Robbie Dinn
+
+@ Permission is hereby granted, free of charge, to any person obtaining
+@ a copy of this software and associated documentation files (the "Software"),
+@ to deal in the Software without restriction, including without limitation
+@ the rights to use, copy, modify, merge, publish, distribute, sublicense,
+@ and/or sell copies of the Software, and to permit persons to whom the
+@ Software is furnished to do so, subject to the following conditions:
+@
+@ The above copyright notice and this permission notice shall be included
+@ in all copies or substantial portions of the Software.
+@
+@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+@ OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+@ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+@ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+@ OTHER DEALINGS IN THE SOFTWARE.
+@
+@-----------------------------------------------------------------------------*/
+
+@-------10--------20--------30--------40--------50--------60--------70--------80
+
+/* =======  BOARD =========== */
+SAM7_1184	= 1		@ Microbus 1184-04 / AT91-SAM7S256
+AT91SAM7X	= 1		@ ATMEL AT91SAM7X sub-family MCU
+
+/* ======= OPTIONS ========== */
+@native_usb	= 1		@ comment out to assemble without usb support
+@onboard_SDFT	= 1		@ comment out to exclude SD card file subsystem
+
+/* ===== CONFIGURATION ====== */
+@ - UART0 pin assignements -
+uart0_gpio	= pioa_base
+uart0_pins	= 0x03		@ RXD0, TXD0 on pins PA0, PA1
+@ --------- LEDs -----------
+LEDPINSEL	= piob_base	@ write 1 here to make pin a gpio
+LEDIO		= piob_base
+REDLED		= 0x01		@ LED1 (green actually)
+YELLED		= 0x02		@ LED2 (green actually)
+GRNLED		= 0x04		@ LED3
+@ -flash init boot override -
+flash_int_gpio	= piob_base
+flash_init_pin	= 0x00200	@ PA9, dip switch 1, boot override
+@ --------- SD card ---------
+sd_is_on_spi	= 1		@ SD card uses SPI interface
+sd_spi		= spi0_base	@ SD card is on SPI0
+sd_spi_gpio	= pioa_base	@ SD card port A PA11,12,13,14=SS,MISO,MOSI,CLK
+sd_cs_gpio	= pioa_base	@ SD card chip-select is on IO port A
+sd_cs		= 1 << 10	@ SD card chip-select PA.10 (the 10 in 1<< 10)
+@ --------- FREQs -----------
+PLL_parms	= 0x15153FFA	@ XTal=18.4MHz,PLLmul=1302,wt=63,div=250>96MHz
+UART0_DIV	= 313		@ uart0 freq divisor for 9600 bauds at 48MHz
+UART1_DIV	= 313		@ uart1 freq divisor for 9600 bauds at 48MHz
+@ --------- RAM ------------
+RAMBOTTOM	= 0x00200000	@
+RAMTOP		= 0x00210000	@ AT91-SAM7S256 (64kB)
+@ --------- BUFFERS --------
+RBF_size	= 0x0800	@ READBUFFER  size for tag as bytevector (2KB)
+WBF_size	= 0x0800	@ WRITEBUFFER size for tag as bytevector (2KB)
+@ --------- FLASH ----------
+F_START_PAGE	= 0x00010000	@ address of 1st page of FLASH (for files)
+F_END_PAGE	= 0x0003F000	@ page after last page of FLASH used for files
+F_PAGE_SIZE	= 256		@ size of pages used for files
+SHARED_LIB_FILE	= 1		@ library and file space share on-chip flash
+LIB_BOTTOM_PAGE	= 0x00012000	@ 72KB into flash (after 2x4KB file pages+code)
+LIB_TOP_PAGE	= 0x00040000	@ end of flash
+
+@-------10--------20--------30--------40--------50--------60--------70--------80
+
+
+
+
+
