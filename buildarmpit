@@ -44,6 +44,7 @@
 # 	./buildarmpit 060 STM32F1    STM32_H103		 // Olimex       STM32-H103
 # 	./buildarmpit 060 STM32F1    STM32_H107		 // Olimex       STM32-H107
 # 	./buildarmpit 060 STM32F1    STM32_LCD		 // Olimex       STM32-LCD
+# 	./buildarmpit 060 STM32F1    STM32_ARMka_F103// ARMka        STM32-F103 version
 # Cortex-M4 ---------------------------------------
 # 	./buildarmpit 060 AT91_SAM4S SAM4S_XPLD		 // Atmel/Embest SAM4S-Xplained
 # 	./buildarmpit 060 LM_4Fxxx   EK_LM4F120		 // TI           EK-LM4F120 Launchpad
@@ -63,4 +64,3 @@ arm-none-eabi-ld -Map bin/armpit_$1_$3.map --script bld_link_addresses -o a.elf 
 arm-none-eabi-objcopy -O binary a.elf  bin/armpit_$1_$3.bin
 rm a.o
 rm a.elf
-

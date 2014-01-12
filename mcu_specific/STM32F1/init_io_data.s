@@ -106,14 +106,14 @@ ISR_vector:
 	.word	i0			@ 66
 	UPFUNC	usbisr,	0		@ 67:	USB OTG FS  (if included)
 .endif
-	
 
-	
+
+
 @
 @ 1- Initialization from FLASH, writing to and erasing FLASH
 @
 
-	
+
 .ifdef STM32_H103
 .balign	4
 flashsectors:	@ 128 x 1KB FLASH sectors of STM32F103RBT6
@@ -136,7 +136,7 @@ lib_sectors:	@ lib shares on-chip file flash
 .word	0x0801e000, 0x0801e400, 0x0801e800, 0x0801eC00, 0x0801f000, 0x0801f400, 0x0801f800, 0x0801fC00
 .word	0x08020000, 0x08800000
 .endif
-	
+
 .ifdef STM32_H107
 .balign	4
 flashsectors:	@ 128 x 2KB FLASH sectors of STM32F107VCT6
@@ -238,8 +238,13 @@ lib_sectors:	@ lib shares on-chip file flash
 .word	0x08080000, 0x08800000
 .endif
 
-
-
-
-
-
+.ifdef STM32_ARMka_F103
+.balign	4
+flashsectors:	@ 64 x 1KB FLASH sectors of STM32F103C8T6
+lib_sectors:	@ lib shares on-chip file flash
+.word	0x08000000, 0x08000800, 0x08001000, 0x08001800, 0x08002000, 0x08002800, 0x08003000, 0x08003800
+.word	0x08004000, 0x08004800, 0x08005000, 0x08005800, 0x08006000, 0x08006800, 0x08007000, 0x08007800
+.word	0x08008000, 0x08008800, 0x08009000, 0x08009800, 0x0800a000, 0x0800a800, 0x0800b000, 0x0800b800
+.word	0x0800c000, 0x0800c800, 0x0800d000, 0x0800d800, 0x0800e000, 0x0800e800, 0x0800f000, 0x0800f800
+.word	0x08010000, 0x08800000
+.endif

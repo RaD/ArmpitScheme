@@ -35,7 +35,7 @@
 @-----------------------------------------------------------------------------*/
 
 
-_func_	
+_func_
 hwinit:
 	@ pre-set common values
 	set	r0,  #0
@@ -132,6 +132,15 @@ hwiwt1:	ldr	r7,  [r10, #0x04]
 	orr	r7,  r7, #0x0700
 	str	r7,  [r6,  #0x00]	@ GPIOB_CRL   <- PB2 opt open drain out
 .endif
+.ifdef STM32_ARMka_F103
+	set	r7,  #0x0c
+	str	r7,  [r10, #24]		@ RCC_APB2ENR <- enab clck I/O Ports AB
+	ldr	r6,  =ioportb_base
+	ldr	r7,  [r6,  #0x00]   @ read GPIOB_CRL state
+	bic	r7,  r7, #0x000F
+	orr	r7,  r7, #0x0002    @ General putpose push-pull output on 2MHz
+	str	r7,  [r6,  #0x00]	@ GPIOB_CRL   <- PB0 config
+.endif
 
 	@ initialization of USART1 for 9600 8N1 operation
 .ifndef connectivity_ln
@@ -147,7 +156,7 @@ hwiwt1:	ldr	r7,  [r10, #0x04]
 .else
 
   .ifndef swap_default_usart
-	
+
 	ldr	r6,  =afio_base
 	ldr	r7,  [r6, #0x04]
 	orr	r7,  r7, #0x06		@ USART1 -> PB, I2C1 -> PB
@@ -165,7 +174,7 @@ hwiwt1:	ldr	r7,  [r10, #0x04]
 	str	r7,  [r6,  #0x00]	@ GPIOB_CRL <- PB6Tx/7Rx AF out pspl/in
 
   .else
-	
+
 	ldr	r7,  [r10, #0x1c]
 	orr	r7,  r7, #0x20000
 	str	r7,  [r10, #0x1c]	@ RCC_APB1ENR <- enab clk USART2 (UAR0)
@@ -176,7 +185,7 @@ hwiwt1:	ldr	r7,  [r10, #0x04]
 	str	r7,  [r6,  #0x00]	@ GPIOA_CRL <- PA2Tx/3Rx AF out pspl/in
 
   .endif
-	
+
 .endif
 	ldr	r6,  =uart0_base
 	ldr	r7,  =UART0_DIV
@@ -198,11 +207,11 @@ hwiwt1:	ldr	r7,  [r10, #0x04]
 	ldr	r8,  =0x00624007	@ TIM2,3,4, SPI2, USART2, I2C1,2
 	orr	r7,  r7, r8
 	str	r7,  [r10, #28]		@ RCC_APB1ENR <- TM234,SP2,UAR2,3,I2C1,2
-	
+
 	@ initialization of SD card pins
 
 .ifdef	onboard_SDFT
-	
+
   .ifdef sd_is_on_spi
 
 	@ configure pins and SPI peripheral
@@ -244,7 +253,7 @@ hwiwt1:	ldr	r7,  [r10, #0x04]
 	str	r7, [r6, #0x00]		@ SPIn_CR1 <- PHA0,POL0,8b,Mst,Enab,280K
 
   .endif @ sd_is_on_spi
-	
+
   .ifdef sd_is_on_mci
 
 	@ power/clock the SDIO peripheral
@@ -276,13 +285,13 @@ mcipw0:	str	r3, [r6]		@ set MCI to power-on phase
 	bne	mcipw0
 
   .endif @ sd_is_on_mci
-	
+
 .endif	@ onboard_SDFT
 
 	@ initialization of USB configuration
 	ldr	r6,  =USB_CONF
 	str	r0,  [r6]		@ USB_CONF <- USB dev not yet cnfgd
-	
+
 .ifdef	native_usb
 
   .ifndef always_init_usb		@					<TZC>
@@ -310,6 +319,9 @@ mcipw0:	str	r3, [r6]		@ set MCI to power-on phase
 	tst	r7, #0x01
 	it	eq
 	seteq	pc,  lnk
+    .endif
+    .ifdef STM32_ARMka_F103
+    @ ARMka doesn't have USB related schematic
     .endif
 
   .endif				@ for .ifndef always_init_usb		<TZC>
@@ -340,7 +352,7 @@ mcipw0:	str	r3, [r6]		@ set MCI to power-on phase
   .ifndef connectivity_ln
 
 .ifdef	debug_usb
-	
+
 	@ DEBUG
 	ldr	r6, =RAMTOP
 	add	r7, r6, #4
@@ -431,7 +443,7 @@ hwiwt3:	subs	r7,  r7, #1
 	str	r7,  [r6]		@ USB_EP0R      -> cfg EP0 as control EP
 	set	r7,  #0x80
 	str	r7,  [r6,  #0x4c]	@ USB_DADDR	-> enable USB, address 0
-	
+
   .else	@ connectivity line USB OTG FS
 	@
 	@ Note:	This interface is not operational in this version
@@ -439,7 +451,7 @@ hwiwt3:	subs	r7,  r7, #1
 	@
 
 .ifdef	debug_usb
-	
+
 	@ DEBUG
 	ldr	r6, =RAMTOP
 	add	r7, r6, #4
@@ -467,9 +479,9 @@ dbgini:	str	r7, [r6]
 	sub	r6,  r6, #0x0800
 	set	r7,  #0x090000
 	str	r7,  [r6, #0x38]	@ OTG_FS_GCCFG <- power up, VBus sensing
-	
+
   .endif @ for ifndef connectivity_ln
-	
+
   .ifdef STM32_H103
 	@ signify to USB host that device is attached on USB bus (set PC11 low)
 	ldr	r6,  =ioportc_base
@@ -490,7 +502,10 @@ dbgini:	str	r7, [r6]
 	set	r7,  #0x08		@ r7 <- pin 3
 	str	r7,  [r6,  #io_clear]
   .endif
-	
+  .ifdef STM32_ARMka_F103
+    @ ARMka doesn't have USB related schematic
+  .endif
+
 .endif	@ native_usb
 
 	@ enf of the hardware initialization
@@ -504,7 +519,7 @@ dbgini:	str	r7, [r6]
 @	 2- I2C Interrupt routine
 @
 @-----------------------------------------------------------------------------*/
-	
+
 @
 @ 1- Initialization from FLASH, writing to and erasing FLASH
 @
@@ -529,7 +544,7 @@ FlashInitCheck: @ return status of boot override pin (WKUP button, PA.0) in rva
 .endif
 
 .ifdef STM32_DT_Board
-_func_	
+_func_
 FlashInitCheck: @ return status of  boot override pin (SW1, PC.9) in rva
 	ldr	rva, =ioportc_base	@ rva <- GPIO port C for PC9
 	ldr	rva, [rva, #0x08]	@ rva <- status of Port C pins
@@ -538,7 +553,7 @@ FlashInitCheck: @ return status of  boot override pin (SW1, PC.9) in rva
 .endif
 
 .ifdef STM32_LCD
-_func_	
+_func_
 FlashInitCheck: @ return status of boot override pin (I2C1_SDA1, PB.7) in rva
 	ldr	rva, =ioportb_base	@ rva <- GPIO port B for PB7
 	ldr	rva, [rva, #0x08]	@ rva <- status of Port B pins
@@ -546,12 +561,21 @@ FlashInitCheck: @ return status of boot override pin (I2C1_SDA1, PB.7) in rva
 	set	pc,  lnk		@ return
 .endif
 
+.ifdef STM32_ARMka_F103
+_func_
+FlashInitCheck: @ return status of boot override pin (PA.0) in rva
+	ldr	rva, =ioporta_base	@ rva <- GPIO port A for PA0
+	ldr	rva, [rva, #0x08]	@ rva <- status of Port A pins
+	and	rva, rva, #0x01		@ rva <- PA0 only (non-0 if hi)
+	set	pc,  lnk		@ return
+.endif
 
-_func_	
+
+_func_
 wrtfla:	@ write to flash, sv2 = page address, sv4 = file descriptor
-_func_	
+_func_
 libwrt:	@ write to on-chip lib flash (lib shares on-chip file flash)
-	
+
 	set	rvc, #F_PAGE_SIZE
 _func_
 wrtfle:	@ [internal entry] (for wrtflr = file pseudo-erase)
@@ -581,16 +605,16 @@ wrtfl1:	@ wait for flash ready
 	ldmfd	sp!, {sv3}		@ restore scheme registers from stack
 	set	pc,  lnk		@ return
 
-_func_	
+_func_
 wrtflr:	@ pseudo-erase a file flash page, sv2 = page address, sv4 = file desc
 	@ Note:	overwriting a flash cell w/anything other than 0x00 can produce
 	@	errors on this MCU. For this reason, #0 is used here (vs #i0).
 	set	rvc, #0
 	b	wrtfle
 
-_func_	
+_func_
 ersfla:	@ erase flash sector that contains page address in sv2
-_func_	
+_func_
 libers:	@ erase on-chip lib flash sector (lib shares on-chip file flash)
 	ldr	rva, =0x40022000	@ rva <- flash registers base address
 	set	rvb, #0x02		@ rvb <- bit 1, PER (page erase)
@@ -615,10 +639,10 @@ ersfl0:	ldr	rvb, [rva, #0x0c]	@ rvb <- FLASH_SR
 @-----------------------------------------------------------------------------*/
 
 .ifdef	onboard_SDFT
-	
+
   .ifdef sd_is_on_spi
 
-_func_	
+_func_
 sd_cfg:	@ configure spi speed (high), phase, polarity
 	@ modifies:	rva, rvb
 	ldr	rva, =sd_spi
@@ -629,7 +653,7 @@ sd_cfg:	@ configure spi speed (high), phase, polarity
 	str	rvb, [rva, #0x00]	@ SPIn_CR1 <- PHA0,POL0,8b,Mstr,Enab,18M
 	set	pc,  lnk
 
-_func_	
+_func_
 sd_slo:	@ configure spi speed (low), phase, polarity
 	@ modifies:	rva, rvb
 	ldr	rva, =sd_spi
@@ -640,27 +664,27 @@ sd_slo:	@ configure spi speed (low), phase, polarity
 	str	rvb, [rva, #0x00]	@ SPIn_CR1 <- PHA0,POL0,8b,Mstr,Ena,280K
 	set	pc,  lnk
 
-_func_	
+_func_
 sd_sel:	@ select SD-card subroutine
 	@ modifies:	rva, rvb
 	ldr	rva, =sd_cs_gpio
 	set	rvb, #sd_cs
 	str	rvb, [rva, #io_clear]	@ clear CS pin
 	set	pc,  lnk
-	
-_func_	
+
+_func_
 sd_dsl:	@ de-select SD-card subroutine
 	@ modifies:	rva, rvb
 	ldr	rva, =sd_cs_gpio
 	set	rvb, #sd_cs
 	str	rvb, [rva, #io_set]	@ set CS pin
 	set	pc,  lnk
-	
-_func_	
+
+_func_
 sd_get:	@ _sgb get sub-routine
 	@ modifies:	rva, rvb
 	set	rvb, #0xff
-_func_	
+_func_
 sd_put:	@ _sgb put sub-routine
 	@ modifies:	rva, rvb
 	ldr	rva, =sd_spi
@@ -778,7 +802,7 @@ spb_wt:	@ wait loop
 	bne	sd_cm1			@ jump to restart
 	tst	rvb, #0x0400
 	beq	spb_wt
-	ldr	rvc, [rva, #0x14]	@ rvc <- response0	
+	ldr	rvc, [rva, #0x14]	@ rvc <- response0
 spb_ts:	@ wait for card in ready-tran state
 	bl	sd_pre			@ prepare mci
 	set	rvb, #0
@@ -793,7 +817,7 @@ spb_ts:	@ wait for card in ready-tran state
 	orr	lnk, sv5, #lnkbit0
 	set	pc,  lnk
 
-_func_	
+_func_
 sd_pre:	@ mci-prep subroutine
 	set	rvb, #0
 	ldr	rva, =sd_mci
@@ -807,7 +831,7 @@ sd_pre:	@ mci-prep subroutine
 	str	rvb, [rva, #0x28]	@ set MCIDataLength to 512
 	set	pc,  lnk
 
-_func_	
+_func_
 sd_arg:	@ mci-arg subroutine (set arg)
 	@ on entry: rvb <- arg (0 as raw int, or block number as scheme int)
 	ldr	rva, =sd_mci
@@ -815,8 +839,8 @@ sd_arg:	@ mci-arg subroutine (set arg)
 	lsl	rvb, rvb, #7
 	str	rvb, [rva, #0x08]	@ set arg in MCIargument
 	set	pc,  lnk
-	
-_func_	
+
+_func_
 sd_cmd:	@ mci-cmd subroutine (put cmd)
 	@ on entry: rvb <- cmd
 	orr	rvb, rvb, #0x0440
@@ -836,20 +860,20 @@ sd_cm0:	@ comand wait loop
 	itT	eq
 	seteq	rva, #0
 	seteq	pc,  lnk
-_func_	
+_func_
 sd_cm1:	@ wait then restart transfer
 	@ [also: internal entry]
 	set	rvb, #(1 << 18)
 sd_cm2:	@ wait loop
 	subs	rvb, rvb, #1
 	bne	sd_cm2
-	ldr	rva, =sd_mci	
+	ldr	rva, =sd_mci
 	ldr	rvb, [rva, #0x14]	@ response
 	lsr	rvb, rvb, #8
 	and	rvb, rvb, #0x0f
 	set	pc,  lnk
-	
-_func_	
+
+_func_
 sd_slo:	@ configure mci speed (low = 400 KHz), 1-bit bus, clock enabled
 	ldr	rva, =sd_mci
 	set	rvb, #0x4100
@@ -857,7 +881,7 @@ sd_slo:	@ configure mci speed (low = 400 KHz), 1-bit bus, clock enabled
 	str	rvb, [rva, #0x04]	@ 400KHz,1b bus,CLK enab,HW flow cntrl
 	set	pc,  lnk
 
-_func_	
+_func_
 sd_fst:	@ configure mci speed (high = 2 MHz), wide bus, clock enabled
 	ldr	rva, =sd_mci
 	set	rvb, #0x4900
@@ -865,7 +889,7 @@ sd_fst:	@ configure mci speed (high = 2 MHz), wide bus, clock enabled
 	str	rvb, [rva, #0x04]        @ 2 MHz,wide bus,CLK enab,HW flow cntrl
 	set	pc,  lnk
 
-_func_	
+_func_
 sdpcmd:	@ function to write a command to SD/MMC card during initialization
 	@ on entry:	sv4 <- cmd (scheme int)
 	@ on entry:	rvc <- arg (raw int)
@@ -911,11 +935,11 @@ sdpcmc:	@ continue
 	str	rvb, [rva, #0x38]	@ clear status register
 	ldr	rvb, [rva, #0x14]	@ rvb <- response0
 	set	pc,  lnk
-  	
+
   .endif  @ sd_is_on_mci
 
 .endif
-	
+
 @
 @ 2- I2C Interrupt routine
 @
@@ -959,7 +983,7 @@ hwi2ni:	@ initiate i2c read/write, as master
 	orr	rvb, rvb, #0x0400	@ rvb <- strt gnrtng Tx ints, eg.restart
 	strh	rvb, [rva, #i2c_cr2]	@ update I2C[0/1]_CR2
 	set	pc,  lnk
-	
+
 _func_
 hwi2st:	@ get i2c interrupt status and base address
 	@ on entry:	rva <- i2c[0/1] base address
@@ -970,7 +994,7 @@ hwi2st:	@ get i2c interrupt status and base address
 	itE	eq
 	biceq	rvb, rvb, #0x20		@	if so,  rvb <- clr bit 5, slave
 	orrne	rvb, rvb, #0x20		@	if not, rvb <- set bit 5, master
-	@ get rid of BTF	
+	@ get rid of BTF
 	bic	rvb, rvb, #0x04
 	set	pc,  lnk
 
@@ -997,7 +1021,7 @@ i2c_hw_branch:	@ process interrupt
 	eq	rvb, #0xA0		@ Mstr Wrt slv ok to rcv dat EV8 TxE,MSL
 	beq	i2c_wm_put
 	set	pc,  lnk
-	
+
 _func_
 i2c_hw_slv_ini: @ Slave Read/Write -- my address recognized  (EV1)
 	tbrfi	rva, sv2, 0		@ r6  <- channel-busy status
@@ -1010,7 +1034,7 @@ i2c_hw_slv_ini: @ Slave Read/Write -- my address recognized  (EV1)
 	b	i2cxit
 
 _func_
-i2c_hw_rs_get:	
+i2c_hw_rs_get:
 	tbrfi	rvb, sv2, 4		@ r7  <- number of bytes sent
 	eq	rvb, #0
 	itT	eq
@@ -1027,7 +1051,7 @@ i2c_hw_ws_put:
 	eq	rva, rvb
 	bne	i2c_ws_put
 	b	i2cxit
-	
+
 i2wsp0:	@ set number of bytes to send
 	bl	gldon
 	tbrfi	rva, sv2, 0		@ r6  <- channel-busy status
@@ -1078,7 +1102,7 @@ i2c_hw_mst_ini: @ Master Read/Write -- slave aknowledged address (EV6)
 	beq	i2c_wm_ini
 	ldrh	rvb, [sv3, #i2c_cr1]	@ rvb <- current content of I2C[0/1]_CR
 	orr	rvb, rvb, #0x0400	@ rvb <- contents with ack bit set
-	strh	rvb, [sv3, #i2c_cr1]	@ set ack in cr	
+	strh	rvb, [sv3, #i2c_cr1]	@ set ack in cr
 	b	i2c_rm_ini
 
 _func_
@@ -1107,7 +1131,7 @@ hwi2wv:	@ prepare for re-start
 	bic	rvb, rvb, #0x0400	@ rvb <- stop generating Tx interrupts
 	strh	rvb, [sv3, #i2c_cr2]	@ update I2C[0/1]_CR2
 	set	pc,  lnk
-	
+
 _func_
 i2c_hw_rm_get:
 	ldrh	rvb, [sv3, #i2c_cr1]	@ rvb <- current content of I2C[0/1]_CR
@@ -1130,14 +1154,14 @@ hwi2rz:	@ flush DR
 	tst	rvb, #0x40
 	it	ne
 	ldrbne	rvb, [sv3, #i2c_rhr]
-	bne	hwi2rz	
+	bne	hwi2rz
 	set	pc,  lnk
-	
+
 _func_
 hwi2cs:	@ clear interrupt (if it needs a read of SR2 to clear)
 	ldrh	rva, [sv3, #i2c_stat2]
 	set	pc,  lnk
-	
+
 _func_
 i2cstp:	@ prepare to end Read as Master transfer
 	ldrh	rvb, [sv3, #i2c_cr1]	@ rvb <- current content of I2C[0/1]_CR
@@ -1162,11 +1186,11 @@ i2putp:	@ Prologue:	write addtnl adrs byts to i2c, from bfr/r12 (prologue)
 	beq	i2c_wm_end		@		if so, stop or restart
 	tbrfi	rvb, sv2,  1		@ rvb <- num adrs bytes remaining to snd
 	eq	rvb, #i0		@ done sending address bytes?
-	it	eq	
+	it	eq
 	seteq	pc,  lnk		@	if so,  return
 	and	rvb, rvb, #0x03
 	eq	rvb, #i0
-	bne	i2cxit	
+	bne	i2cxit
 	tbrfi	rvb, sv2,  1		@ rvb <- num adrs byts remnng to snd
 	sub	rvb, rvb, #4		@ rvb <- updtd num adrs byts to snd
 	tbsti	rvb, sv2, 1		@ stor updtd num adrs byts to snd
@@ -1186,8 +1210,3 @@ i2pute:	@ Epilogue:	set completion status if needed (epilogue)
 
 
 .endif
-
-
-
-
-
