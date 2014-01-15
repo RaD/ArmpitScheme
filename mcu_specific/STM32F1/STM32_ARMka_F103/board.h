@@ -33,7 +33,7 @@ STM32_ARMka_F103 = 1		@ ARMka F103 / STM32F103C8T6 Cortex-M3
 
 /* ======= OPTIONS ========== */
 @native_usb	= 1		@ comment out to exclude usb support
-@onboard_SDFT	= 1		@ comment out to exclude SD card file subsystem
+onboard_SDFT	= 1		@ comment out to exclude SD card file subsystem
 
 /* ===== CONFIGURATION ====== */
 @ --------- LEDs -----------
@@ -60,10 +60,10 @@ WBF_size	= 0x0600	@ WRITEBUFFER size for tag as bytevector (1.5KB)
 I2C0ADR		= i2c0_base + i2c_address
 @ --------- FLASH ----------
 F_START_PAGE	= 0x08010000	@ address of 1st page of FLASH (for files)
-F_END_PAGE	= 0x0801fC00	@ page after last page of FLASH used for files
+F_END_PAGE	= 0x08010000	@ page after last page of FLASH used for files
 F_PAGE_SIZE	= 256		@ size of pages used for files
 SHARED_LIB_FILE	= 1		@ library and file space share on-chip flash
-LIB_BOTTOM_PAGE	= 0x08010800	@ 66KB into flash (after 2x1KB file pages+code)
-LIB_TOP_PAGE	= 0x08020000	@ end of flash
+LIB_BOTTOM_PAGE	= 0x08010000	@ 66KB into flash (after 2x1KB file pages+code)
+LIB_TOP_PAGE	= 0x08010000	@ end of flash
 
 @-------10--------20--------30--------40--------50--------60--------70--------80

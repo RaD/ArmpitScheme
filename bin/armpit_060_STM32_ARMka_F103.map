@@ -7,36 +7,36 @@ Name             Origin             Length             Attributes
 Linker script and memory map
 
 
-.text           0x00000000     0xcba0
+.text           0x00000000     0xd9e0
                 0x00000000                _startcode = .
  *(.text)
- .text          0x00000000     0xcba0 a.o
+ .text          0x00000000     0xd9e0 a.o
                 0x00000000                _start
                 0x000001f6                _code_
-                0x0000cba0                _endcode = .
+                0x0000d9e0                _endcode = .
 
-.glue_7         0x0000cba0        0x0
+.glue_7         0x0000d9e0        0x0
  .glue_7        0x00000000        0x0 linker stubs
 
-.glue_7t        0x0000cba0        0x0
+.glue_7t        0x0000d9e0        0x0
  .glue_7t       0x00000000        0x0 linker stubs
 
-.vfp11_veneer   0x0000cba0        0x0
+.vfp11_veneer   0x0000d9e0        0x0
  .vfp11_veneer  0x00000000        0x0 linker stubs
 
-.v4_bx          0x0000cba0        0x0
+.v4_bx          0x0000d9e0        0x0
  .v4_bx         0x00000000        0x0 linker stubs
 
-.iplt           0x0000cba0        0x0
+.iplt           0x0000d9e0        0x0
  .iplt          0x00000000        0x0 a.o
 
-.data           0x00009890        0x0
-                0x00009890                _startdata = .
+.data           0x0000a630        0x0
+                0x0000a630                _startdata = .
  *(.data)
- .data          0x00009890        0x0 a.o
-                0x00009890                _enddata = .
+ .data          0x0000a630        0x0 a.o
+                0x0000a630                _enddata = .
 
-.igot.plt       0x00009890        0x0
+.igot.plt       0x0000a630        0x0
  .igot.plt      0x00000000        0x0 a.o
 
 boot_section    0x00010000        0x0
